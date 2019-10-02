@@ -9,13 +9,6 @@
 import Foundation
 import MultipeerConnectivity
 
-public protocol PeerHandle: class{
-    func addPeer(name: MCPeerID)
-    func removePeer(name: MCPeerID)
-    func sendMessage(message: String)
-    func didGetMessage(message: String)
-    func connectionSucceded()
-}
 
 public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate {
     //MARK: MPC functions
@@ -64,18 +57,18 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
         peerControlDelegate?.removePeer(name: peerID)
     }
     //MARK: Variables
-    public var peerID: MCPeerID
-    public var session: MCSession
-    public let advetiser : MCNearbyServiceAdvertiser
-    public let browser : MCNearbyServiceBrowser
+    var peerID: MCPeerID
+    var session: MCSession
+    let advetiser : MCNearbyServiceAdvertiser
+    let browser : MCNearbyServiceBrowser
     
-    weak var peerControlDelegate: PeerHandle?
+    public weak var peerControlDelegate: PeerHandle?
     
     private let serviceType = "test"
     var invitationHandler: ((Bool, MCSession?)->Void)!
     
     //MARK: Init
-    override init() {
+    override public init() {
          peerID = MCPeerID(displayName: UIDevice.current.name)
                session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .none)
                advetiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
@@ -90,7 +83,7 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
     
 }
 extension MPCManager: VcToManagerDelegate {
-    func messageSent(message: String) {
+    public func messageSent(message: String) {
         let messageToSend = "\(peerID.displayName): \(message)\n"
            let message = messageToSend.data(using: String.Encoding.utf8, allowLossyConversion: false)
            
@@ -103,15 +96,15 @@ extension MPCManager: VcToManagerDelegate {
            }
     }
     
-    func peerSelected(peer: MCPeerID) {
+    public func peerSelected(peer: MCPeerID) {
         browser.invitePeer(peer, to: session, withContext: Data(count: 1), timeout: 2)
     }
     
-    func joinButtonPressed() {
+    public func joinButtonPressed() {
         self.browser.startBrowsingForPeers()
     }
     
-    func hostButtonPressed() {
+    public func hostButtonPressed() {
         self.advetiser.startAdvertisingPeer()
     }
 }

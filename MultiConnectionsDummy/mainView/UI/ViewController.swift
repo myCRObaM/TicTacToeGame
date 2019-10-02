@@ -9,21 +9,17 @@
 import UIKit
 import MultipeerConnectivity
 import Shared
+import GameModule
 
-protocol VcToManagerDelegate: class {
-    func joinButtonPressed()
-    func hostButtonPressed()
-    func peerSelected(peer: MCPeerID)
-    func messageSent(message: String)
-}
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+
+public class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         viewModel.peersList.count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: "da") as? CustomTableViewCell {
             cell.backgroundColor = .clear
             cell.setupCell(letter: String(indexPath.row), location: viewModel.peersList[indexPath.row].displayName)
@@ -33,7 +29,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         return UITableViewCell()
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         vcToManagerButton?.peerSelected(peer: viewModel.peersList[indexPath.row])
     }
     
@@ -86,6 +82,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         return view
     }()
     
+    let openButton: UIButton = {
+          let view = UIButton()
+          view.translatesAutoresizingMaskIntoConstraints = false
+          view.backgroundColor = .magenta
+          view.setTitle("Open game", for: .normal)
+          view.setTitleColor(.blue, for: .normal)
+          return view
+      }()
+    
     let tableView: UITableView = {
         let view = UITableView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -93,7 +98,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }()
     
     //MARK: viewDidLoad
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         let mPCManager = MPCManager()
         mPCManager.peerControlDelegate = self
@@ -111,6 +116,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         view.addSubview(chatWrite)
         view.addSubview(sendButton)
         view.addSubview(searchButton)
+        view.addSubview(openButton)
         
         chatView.text = "Ovo je test ChatViewa\n"
         
@@ -118,6 +124,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
          NotificationCenter.default.addObserver(self, selector: #selector(keyboardNotification(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         searchButton.addTarget(self, action: #selector(showConnectionMenu), for: .touchUpInside)
         sendButton.addTarget(self, action: #selector(sendButtonPressed), for: .touchUpInside)
+        openButton.addTarget(self, action: #selector(openNewViewController), for: .touchUpInside)
     }
     
     //MARK: setupMultipeer
@@ -148,6 +155,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             
             searchButton.topAnchor.constraint(equalTo: sendButton.bottomAnchor, constant: 20),
             searchButton.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/20),
+            
+            openButton.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20),
+                       openButton.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/20),
             
         ])
         
@@ -212,11 +222,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             }
         }
     }
+    @objc func openNewViewController(){
+        let gameCoordinator = MainScreenCoordinator(presenter: self)
+        gameCoordinator.start()
+    }
     
 }
 
 extension ViewController: PeerHandle {
-    func connectionSucceded() {
+    public func connectionSucceded() {
         DispatchQueue.main.async { [unowned self] in
             self.viewModel.peersList.removeAll()
             self.tableView.reloadData()
@@ -228,18 +242,18 @@ extension ViewController: PeerHandle {
     }
     
     
-    func didGetMessage(message: String) {
+    public func didGetMessage(message: String) {
         DispatchQueue.main.async { [unowned self] in
             self.chatView.text = self.chatView.text + message
         }
     }
     
-    func sendMessage(message: String) {
+    public func sendMessage(message: String) {
         chatView.text = chatView.text + message
         chatWrite.text = ""
     }
     
-    func addPeer(name: MCPeerID) {
+    public func addPeer(name: MCPeerID) {
         
         self.viewModel.peersList.append(name)
         tableView.reloadData()
@@ -255,7 +269,7 @@ extension ViewController: PeerHandle {
         
     }
     
-    func removePeer(name: MCPeerID) {
+    public func removePeer(name: MCPeerID) {
         print("remove")
     }
 }
