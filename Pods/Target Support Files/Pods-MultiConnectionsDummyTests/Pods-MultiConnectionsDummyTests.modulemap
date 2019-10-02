@@ -1,0 +1,6 @@
+framework module Pods_MultiConnectionsDummyTests {
+  umbrella header "Pods-MultiConnectionsDummyTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
