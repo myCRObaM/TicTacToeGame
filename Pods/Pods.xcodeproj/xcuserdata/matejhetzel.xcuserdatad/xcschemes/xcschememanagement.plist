@@ -46,6 +46,16 @@
 			<key>orderHint</key>
 			<integer>4</integer>
 		</dict>
+		<key>Pods-MultiConnectionsDummyTests.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>12</integer>
+		</dict>
+		<key>Pods-MultiConnectionsDummyUITests.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>13</integer>
+		</dict>
 		<key>Pods-Shared.xcscheme</key>
 		<dict>
 			<key>isShown</key>
