@@ -32,7 +32,8 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
     public func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         let message = NSString(data: data as Data, encoding: String.Encoding.utf8.rawValue)! as String
             print(message)
-        self.managerToGameDelegate?.didGetMessage(message: message, isHost: isHost)
+        willPlay = !willPlay
+        self.managerToGameDelegate?.didGetMessage(message: message, isHost: isHost, willPlay: willPlay)
     }
     
     public func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
@@ -69,6 +70,7 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
     public weak var managerToGameDelegate: ManagerToGame?
     var isHost: Bool = false
     var didPressButton = false
+    var willPlay = false
     
     private let serviceType = "test"
     var invitationHandler: ((Bool, MCSession?)->Void)!
@@ -90,11 +92,12 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
 }
 extension MPCManager: VcToManagerDelegate {
     public func didConnect() {
-        peerControlDelegate?.openGame()
+        peerControlDelegate?.openGame(willPlay: willPlay)
     }
     
     public func peerSelected(peer: MCPeerID) {
         browser.invitePeer(peer, to: session, withContext: Data(count: 1), timeout: 2)
+        willPlay = true
     }
     
     public func joinButtonPressed() {
@@ -114,15 +117,18 @@ extension MPCManager: GameToManager{
     }
     
     public func buttonPressed(location: (Int, Int)) {
-         let messageToSend = "\(location)"
-                  let message = messageToSend.data(using: String.Encoding.utf8, allowLossyConversion: false)
-                  
-                  do {
-                    try self.session.send(message!, toPeers: self.session.connectedPeers, with: .unreliable)
-                   managerToGameDelegate?.sendMessage(message: messageToSend, isHost: isHost)
-                  }
-                  catch {
-                    print("Error sending message")
-                  }
+        if willPlay {
+            let messageToSend = "\(location)"
+                          let message = messageToSend.data(using: String.Encoding.utf8, allowLossyConversion: false)
+                          
+                          do {
+                            try self.session.send(message!, toPeers: self.session.connectedPeers, with: .unreliable)
+                            willPlay = !willPlay
+                           managerToGameDelegate?.sendMessage(message: messageToSend, isHost: isHost, willPlay: willPlay)
+                          }
+                          catch {
+                            print("Error sending message")
+                          }
+        }
     }
 }

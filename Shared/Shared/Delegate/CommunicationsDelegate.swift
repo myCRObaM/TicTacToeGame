@@ -13,7 +13,7 @@ public protocol PeerHandle: class{
     func addPeer(name: MCPeerID)
     func removePeer(name: MCPeerID)
     func connectionSucceded()
-    func openGame()
+    func openGame(willPlay: Bool)
     func didDisconnect(isHost: Bool)
 }
 

@@ -14,6 +14,6 @@ public protocol GameToManager: class {
 }
 
 public protocol ManagerToGame: class {
-    func sendMessage(message: String, isHost: Bool)
-    func didGetMessage(message: String, isHost: Bool)
+    func sendMessage(message: String, isHost: Bool, willPlay: Bool)
+    func didGetMessage(message: String, isHost: Bool, willPlay: Bool)
 }

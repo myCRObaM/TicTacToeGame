@@ -149,16 +149,11 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
     
     //MARK: Show Connection menu
     @objc func showConnectionMenu() {
-        if viewModel.isConnected {
-            openNewViewController()
-        }
-        else {
             let ac = UIAlertController(title: "Connection Menu", message: nil, preferredStyle: .actionSheet)
             ac.addAction(UIAlertAction(title: "Host a session", style: .default, handler: hostSession))
             ac.addAction(UIAlertAction(title: "Join a session", style: .default, handler: joinSession))
             ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
             present(ac, animated: true)
-        }
     }
     
     func hostSession(action: UIAlertAction) {
@@ -183,8 +178,8 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
             }
         }
     }
-    @objc func openNewViewController(){
-        gameCoordinator = MainScreenCoordinator(presenter: self, manager: viewModel.dependencies.mpcManager)
+    @objc func openNewViewController(willPlay: Bool){
+        gameCoordinator = MainScreenCoordinator(presenter: self, manager: viewModel.dependencies.mpcManager, willPlay: willPlay)
         gameCoordinator.start()
     }
     
@@ -209,9 +204,9 @@ extension ViewController: PeerHandle {
         viewModel.isConnected = false
     }
     
-    public func openGame() {
+    public func openGame(willPlay: Bool) {
         self.viewModel.isConnected = true
-        self.openNewViewController()
+        self.openNewViewController(willPlay: willPlay)
     }
     
     public func connectionSucceded() {
