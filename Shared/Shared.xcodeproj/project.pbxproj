@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		F00264BD23448436002AC18B /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00264BC23448436002AC18B /* Coordinator.swift */; };
+		F05B747C2344C22C00DADACE /* GameComunicationsDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05B747B2344C22C00DADACE /* GameComunicationsDelegate.swift */; };
+		F05B74822344C41C00DADACE /* TicTacToeEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05B74812344C41B00DADACE /* TicTacToeEnum.swift */; };
 		F08DE9CD2344808D0022EB1D /* Shared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F08DE9C32344808C0022EB1D /* Shared.framework */; };
 		F08DE9D22344808D0022EB1D /* SharedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08DE9D12344808D0022EB1D /* SharedTests.swift */; };
 		F08DE9D42344808D0022EB1D /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = F08DE9C62344808C0022EB1D /* Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -27,6 +29,10 @@
 
 /* Begin PBXFileReference section */
 		F00264BC23448436002AC18B /* Coordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		F05B746B2344A05200DADACE /* GameModule.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = GameModule.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F05B746C2344A05200DADACE /* Pods_MultiConnectionsDummy.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_MultiConnectionsDummy.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F05B747B2344C22C00DADACE /* GameComunicationsDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameComunicationsDelegate.swift; sourceTree = "<group>"; };
+		F05B74812344C41B00DADACE /* TicTacToeEnum.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicTacToeEnum.swift; sourceTree = "<group>"; };
 		F08DE9C32344808C0022EB1D /* Shared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Shared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F08DE9C62344808C0022EB1D /* Shared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Shared.h; sourceTree = "<group>"; };
 		F08DE9C72344808C0022EB1D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -64,12 +70,30 @@
 			path = Coordinator;
 			sourceTree = "<group>";
 		};
+		F05B746A2344A05200DADACE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F05B746B2344A05200DADACE /* GameModule.framework */,
+				F05B746C2344A05200DADACE /* Pods_MultiConnectionsDummy.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F05B74802344C40400DADACE /* enum */ = {
+			isa = PBXGroup;
+			children = (
+				F05B74812344C41B00DADACE /* TicTacToeEnum.swift */,
+			);
+			path = enum;
+			sourceTree = "<group>";
+		};
 		F08DE9B92344808C0022EB1D = {
 			isa = PBXGroup;
 			children = (
 				F08DE9C52344808C0022EB1D /* Shared */,
 				F08DE9D02344808D0022EB1D /* SharedTests */,
 				F08DE9C42344808C0022EB1D /* Products */,
+				F05B746A2344A05200DADACE /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -87,6 +111,7 @@
 			children = (
 				F08DE9C62344808C0022EB1D /* Shared.h */,
 				F00264B92344840A002AC18B /* Coordinator */,
+				F05B74802344C40400DADACE /* enum */,
 				F08DE9E0234480EF0022EB1D /* Delegate */,
 				F08DE9DF2344809F0022EB1D /* Manager */,
 				F08DE9C72344808C0022EB1D /* Info.plist */,
@@ -115,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				F08DE9E12344812B0022EB1D /* CommunicationsDelegate.swift */,
+				F05B747B2344C22C00DADACE /* GameComunicationsDelegate.swift */,
 			);
 			path = Delegate;
 			sourceTree = "<group>";
@@ -231,6 +257,8 @@
 				F08DE9DE234480980022EB1D /* MPCManager.swift in Sources */,
 				F08DE9E22344812B0022EB1D /* CommunicationsDelegate.swift in Sources */,
 				F00264BD23448436002AC18B /* Coordinator.swift in Sources */,
+				F05B74822344C41C00DADACE /* TicTacToeEnum.swift in Sources */,
+				F05B747C2344C22C00DADACE /* GameComunicationsDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

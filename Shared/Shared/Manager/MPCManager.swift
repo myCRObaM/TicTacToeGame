@@ -22,6 +22,8 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
           print("Connecting: \(peerID.displayName)")
         case .notConnected:
           print("Disconnected: \(peerID.displayName)")
+          self.peerControlDelegate?.didDisconnect(isHost: didPressButton)
+          self.didPressButton = false
         @unknown default:
           print("fatal error")
         }
@@ -30,7 +32,7 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
     public func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         let message = NSString(data: data as Data, encoding: String.Encoding.utf8.rawValue)! as String
             print(message)
-        self.peerControlDelegate?.didGetMessage(message: message)
+        self.managerToGameDelegate?.didGetMessage(message: message, isHost: isHost)
     }
     
     public func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
@@ -56,6 +58,7 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
     public func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         peerControlDelegate?.removePeer(name: peerID)
     }
+    
     //MARK: Variables
     var peerID: MCPeerID
     var session: MCSession
@@ -63,6 +66,9 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
     let browser : MCNearbyServiceBrowser
     
     public weak var peerControlDelegate: PeerHandle?
+    public weak var managerToGameDelegate: ManagerToGame?
+    var isHost: Bool = false
+    var didPressButton = false
     
     private let serviceType = "test"
     var invitationHandler: ((Bool, MCSession?)->Void)!
@@ -83,17 +89,8 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
     
 }
 extension MPCManager: VcToManagerDelegate {
-    public func messageSent(message: String) {
-        let messageToSend = "\(peerID.displayName): \(message)\n"
-           let message = messageToSend.data(using: String.Encoding.utf8, allowLossyConversion: false)
-           
-           do {
-             try self.session.send(message!, toPeers: self.session.connectedPeers, with: .unreliable)
-            peerControlDelegate?.sendMessage(message: messageToSend)
-           }
-           catch {
-             print("Error sending message")
-           }
+    public func didConnect() {
+        peerControlDelegate?.openGame()
     }
     
     public func peerSelected(peer: MCPeerID) {
@@ -106,5 +103,26 @@ extension MPCManager: VcToManagerDelegate {
     
     public func hostButtonPressed() {
         self.advetiser.startAdvertisingPeer()
+        self.isHost = true
+    }
+}
+extension MPCManager: GameToManager{
+    public func didDissmiss(isHost: Bool) {
+        self.didPressButton = isHost
+        session.disconnect()
+        
+    }
+    
+    public func buttonPressed(location: (Int, Int)) {
+         let messageToSend = "\(location)"
+                  let message = messageToSend.data(using: String.Encoding.utf8, allowLossyConversion: false)
+                  
+                  do {
+                    try self.session.send(message!, toPeers: self.session.connectedPeers, with: .unreliable)
+                   managerToGameDelegate?.sendMessage(message: messageToSend, isHost: isHost)
+                  }
+                  catch {
+                    print("Error sending message")
+                  }
     }
 }

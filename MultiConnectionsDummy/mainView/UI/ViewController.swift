@@ -37,6 +37,7 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
     var serviceType = "ioscreator-chat"
     var viewModel: MainViewModel!
     weak var vcToManagerButton: VcToManagerDelegate?
+    var gameCoordinator: MainScreenCoordinator!
     
     var messageToSend: String!
     
@@ -48,28 +49,11 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
         return view
     }()
     
-    let chatView: UITextView = {
-        let view = UITextView()
-        view.backgroundColor = .lightGray
+    let chatView: UIImageView = {
+        let view = UIImageView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.isScrollEnabled = true
-        view.isEditable = false
-        return view
-    }()
-    
-    let chatWrite: UITextField = {
-        let view = UITextField()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .lightGray
-        return view
-    }()
-    
-    let sendButton: UIButton = {
-        let view = UIButton()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .magenta
-        view.setTitle("Send", for: .normal)
-        view.setTitleColor(.blue, for: .normal)
+        view.image = UIImage(named: "HomeImage")
+        view.contentMode = .scaleToFill
         return view
     }()
     
@@ -77,19 +61,10 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
         let view = UIButton()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .blue
-        view.setTitle("Manage Sessions", for: .normal)
+        view.setTitle("New game", for: .normal)
         view.setTitleColor(.magenta, for: .normal)
         return view
     }()
-    
-    let openButton: UIButton = {
-          let view = UIButton()
-          view.translatesAutoresizingMaskIntoConstraints = false
-          view.backgroundColor = .magenta
-          view.setTitle("Open game", for: .normal)
-          view.setTitleColor(.blue, for: .normal)
-          return view
-      }()
     
     let tableView: UITableView = {
         let view = UITableView()
@@ -113,18 +88,11 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
         self.navigationController?.navigationBar.isHidden = false
         view.addSubview(cview)
         view.addSubview(chatView)
-        view.addSubview(chatWrite)
-        view.addSubview(sendButton)
         view.addSubview(searchButton)
-        view.addSubview(openButton)
-        
-        chatView.text = "Ovo je test ChatViewa\n"
         
         setupConstraints()
          NotificationCenter.default.addObserver(self, selector: #selector(keyboardNotification(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         searchButton.addTarget(self, action: #selector(showConnectionMenu), for: .touchUpInside)
-        sendButton.addTarget(self, action: #selector(sendButtonPressed), for: .touchUpInside)
-        openButton.addTarget(self, action: #selector(openNewViewController), for: .touchUpInside)
     }
     
     //MARK: setupMultipeer
@@ -138,26 +106,17 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
     
     //MARK: Setup Constraints
     func setupConstraints(){
-        setupChatView(height: UIScreen.main.bounds.height/1.5)
+        setupChatView(height: UIScreen.main.bounds.height/4)
         NSLayoutConstraint.activate([
             cview.topAnchor.constraint(equalTo: view.topAnchor),
             cview.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             cview.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             cview.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             
-            chatWrite.topAnchor.constraint(equalTo: chatView.bottomAnchor, constant: 5),
-            chatWrite.leadingAnchor.constraint(equalTo: cview.leadingAnchor),
-            chatWrite.trailingAnchor.constraint(equalTo: cview.trailingAnchor),
             
-            sendButton.topAnchor.constraint(equalTo: chatWrite.bottomAnchor, constant: 20),
-            sendButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-            
-            searchButton.topAnchor.constraint(equalTo: sendButton.bottomAnchor, constant: 20),
+            searchButton.topAnchor.constraint(equalTo: chatView.bottomAnchor, constant: 20),
             searchButton.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/20),
-            
-            openButton.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20),
-                       openButton.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/20),
+            searchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
         ])
         
@@ -190,11 +149,16 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
     
     //MARK: Show Connection menu
     @objc func showConnectionMenu() {
-        let ac = UIAlertController(title: "Connection Menu", message: nil, preferredStyle: .actionSheet)
-        ac.addAction(UIAlertAction(title: "Host a session", style: .default, handler: hostSession))
-        ac.addAction(UIAlertAction(title: "Join a session", style: .default, handler: joinSession))
-        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        present(ac, animated: true)
+        if viewModel.isConnected {
+            openNewViewController()
+        }
+        else {
+            let ac = UIAlertController(title: "Connection Menu", message: nil, preferredStyle: .actionSheet)
+            ac.addAction(UIAlertAction(title: "Host a session", style: .default, handler: hostSession))
+            ac.addAction(UIAlertAction(title: "Join a session", style: .default, handler: joinSession))
+            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            present(ac, animated: true)
+        }
     }
     
     func hostSession(action: UIAlertAction) {
@@ -205,9 +169,6 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
         vcToManagerButton?.joinButtonPressed()
     }
     
-    @objc func sendButtonPressed(){
-        vcToManagerButton?.messageSent(message: chatWrite.text ?? "")
-    }
     @objc func keyboardNotification(notification: NSNotification) {
         if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardHeight = keyboardFrame.cgRectValue.height
@@ -223,34 +184,45 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
         }
     }
     @objc func openNewViewController(){
-        let gameCoordinator = MainScreenCoordinator(presenter: self)
+        gameCoordinator = MainScreenCoordinator(presenter: self, manager: viewModel.dependencies.mpcManager)
         gameCoordinator.start()
+    }
+    
+    func dismissTicTacToeVC(isHost: Bool){
+        gameCoordinator.dismissVC()
+        if !isHost {
+            DispatchQueue.main.async { [unowned self] in
+            let alert = UIAlertController(title: "Closed", message: "Your friend left the game", preferredStyle: .alert)
+                   alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action: UIAlertAction) in
+                       alert.dismiss(animated: true, completion: nil)
+                   }))
+                   self.present(alert, animated: true)
+            }
+        }
     }
     
 }
 
 extension ViewController: PeerHandle {
+    public func didDisconnect(isHost: Bool) {
+        dismissTicTacToeVC(isHost: isHost)
+        viewModel.isConnected = false
+    }
+    
+    public func openGame() {
+        self.viewModel.isConnected = true
+        self.openNewViewController()
+    }
+    
     public func connectionSucceded() {
         DispatchQueue.main.async { [unowned self] in
             self.viewModel.peersList.removeAll()
             self.tableView.reloadData()
             self.tableView.removeFromSuperview()
-            self.setupChatView(height: UIScreen.main.bounds.height/1.5)
-               }
-         
-        
-    }
-    
-    
-    public func didGetMessage(message: String) {
-        DispatchQueue.main.async { [unowned self] in
-            self.chatView.text = self.chatView.text + message
+            self.setupChatView(height: UIScreen.main.bounds.height/4)
+            self.vcToManagerButton?.didConnect()
         }
-    }
-    
-    public func sendMessage(message: String) {
-        chatView.text = chatView.text + message
-        chatWrite.text = ""
+        
     }
     
     public func addPeer(name: MCPeerID) {

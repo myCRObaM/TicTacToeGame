@@ -24,6 +24,7 @@ class MainViewModel {
     }
     var peersList = [MCPeerID]()
     let dependencies: Dependencies
+    var isConnected: Bool = false
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies

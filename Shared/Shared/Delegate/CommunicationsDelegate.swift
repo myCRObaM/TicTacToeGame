@@ -12,14 +12,14 @@ import MultipeerConnectivity
 public protocol PeerHandle: class{
     func addPeer(name: MCPeerID)
     func removePeer(name: MCPeerID)
-    func sendMessage(message: String)
-    func didGetMessage(message: String)
     func connectionSucceded()
+    func openGame()
+    func didDisconnect(isHost: Bool)
 }
 
 public protocol VcToManagerDelegate: class {
     func joinButtonPressed()
     func hostButtonPressed()
     func peerSelected(peer: MCPeerID)
-    func messageSent(message: String)
+    func didConnect()
 }
