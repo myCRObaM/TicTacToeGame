@@ -113,6 +113,7 @@ extension MPCManager: GameToManager{
     public func didDissmiss(isHost: Bool) {
         self.didPressButton = isHost
         session.disconnect()
+        willPlay = false
         
     }
     
