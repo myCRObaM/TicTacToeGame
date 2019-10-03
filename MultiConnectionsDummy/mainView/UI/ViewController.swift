@@ -62,7 +62,7 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .blue
         view.setTitle("New game", for: .normal)
-        view.setTitleColor(.magenta, for: .normal)
+        view.setTitleColor(.white, for: .normal)
         return view
     }()
     

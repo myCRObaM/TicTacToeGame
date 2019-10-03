@@ -102,17 +102,18 @@ extension MPCManager: VcToManagerDelegate {
     
     public func joinButtonPressed() {
         self.browser.startBrowsingForPeers()
+        self.isHost = true
     }
     
     public func hostButtonPressed() {
         self.advetiser.startAdvertisingPeer()
-        self.isHost = true
     }
 }
 extension MPCManager: GameToManager{
     public func didDissmiss(isHost: Bool) {
         self.didPressButton = isHost
         session.disconnect()
+        self.isHost = false
         willPlay = false
         
     }
