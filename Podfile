@@ -5,15 +5,9 @@ use_frameworks!
 workspace 'MultiConnectionsDummy'
 
 def pods
-  pod 'RxSwift'
-  pod 'RxCocoa'
 end
 
 def testing_pods
-  pod 'Quick'
-  pod 'Nimble'
-  pod 'Cuckoo'
-  pod 'RxTest'
 end
 
 target 'MultiConnectionsDummy' do
