@@ -92,7 +92,7 @@ public class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserD
 }
 extension MPCManager: VcToManagerDelegate {
     public func didConnect() {
-        peerControlDelegate?.openGame(willPlay: willPlay)
+        peerControlDelegate?.openGame(willPlay: willPlay, isHost: isHost)
     }
     
     public func peerSelected(peer: MCPeerID) {
@@ -111,7 +111,7 @@ extension MPCManager: VcToManagerDelegate {
 }
 extension MPCManager: GameToManager{
     public func didDissmiss(isHost: Bool) {
-        self.didPressButton = isHost
+        self.didPressButton = true
         session.disconnect()
         self.isHost = false
         willPlay = false

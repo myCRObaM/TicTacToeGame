@@ -12,3 +12,13 @@ public protocol Coordinator: class {
     
     func start()
 }
+extension Coordinator {
+    
+    public func store(coordinator: Coordinator) {
+        childCoordinators.append(coordinator)
+    }
+    
+    public func free(coordinator: Coordinator) {
+        childCoordinators = childCoordinators.filter { $0 !== coordinator }
+    }
+}

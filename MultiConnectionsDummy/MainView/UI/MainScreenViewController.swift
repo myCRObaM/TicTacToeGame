@@ -10,9 +10,10 @@ import UIKit
 import MultipeerConnectivity
 import Shared
 import GameModule
+import RxSwift
 
-public class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-    
+public class MainScreenViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    //MARK: TableView functions
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.peersList.count
     }
@@ -28,26 +29,26 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        vcToManagerButton?.peerSelected(peer: viewModel.peersList[indexPath.row])
+        viewModel.input.didSelectCellSubject.onNext(indexPath.row)
     }
     
     //MARK: VARIABLES
     var serviceType = "ioscreator-chat"
-    var viewModel: MainViewModel!
+    var viewModel: MainScreenViewModel!
     weak var vcToManagerButton: VcToManagerDelegate?
-    var gameCoordinator: GameScreenCoordinator!
+    let disposeBag = DisposeBag()
     
     var messageToSend: String!
     
     
-    let cview: UIView = {
+    let customView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    let chatView: UIImageView = {
+    let imageView: UIImageView = {
         let view = UIImageView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.image = UIImage(named: "HomeImage")
@@ -73,23 +74,36 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
     //MARK: viewDidLoad
     override public func viewDidLoad() {
         super.viewDidLoad()
-        let mPCManager = MPCManager()
-        mPCManager.peerControlDelegate = self
-        self.vcToManagerButton = mPCManager
-        viewModel = MainViewModel(dependencies: MainViewModel.Dependencies(mpcManager: mPCManager))
+        
+        
+        setupViewModel()
         setupView()
         setupMultipeer()
     }
-    
+    func setupViewModel(){
+        let mPCManager = MPCManager()
+        mPCManager.peerControlDelegate = self
+        self.vcToManagerButton = mPCManager
+        viewModel = MainScreenViewModel(dependencies: MainScreenViewModel.Dependencies(mpcManager: mPCManager, scheduler: ConcurrentDispatchQueueScheduler(qos: .background)))
+        viewModel.vcToManagerButton = vcToManagerButton
+        
+        let input = MainScreenViewModel.Input(didSelectCellSubject: PublishSubject<Int>(), shouldShowClosingSubject: PublishSubject<Bool>(), gameScreenControlSubject: PublishSubject<(Bool, MainScreenViewController, MPCManager, Bool, Bool)>())
+        let output = viewModel.transfrom(input: input)
+        
+        for disposable in output.disposables {
+            disposable.disposed(by: disposeBag)
+        }
+        
+        self.dismissTicTacToeVC(subject: output.showClosingSubject).disposed(by: disposeBag)
+    }
     //MARK: setupView
     func setupView(){
         self.navigationController?.navigationBar.isHidden = false
-        view.addSubview(cview)
-        view.addSubview(chatView)
+        view.addSubview(customView)
+        view.addSubview(imageView)
         view.addSubview(searchButton)
         
         setupConstraints()
-         NotificationCenter.default.addObserver(self, selector: #selector(keyboardNotification(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         searchButton.addTarget(self, action: #selector(showConnectionMenu), for: .touchUpInside)
     }
     
@@ -104,15 +118,19 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
     
     //MARK: Setup Constraints
     func setupConstraints(){
-        setupChatView(height: UIScreen.main.bounds.height/4)
         NSLayoutConstraint.activate([
-            cview.topAnchor.constraint(equalTo: view.topAnchor),
-            cview.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            cview.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            cview.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            customView.topAnchor.constraint(equalTo: view.topAnchor),
+            customView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            customView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            customView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            
+            imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            imageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/3),
             
             
-            searchButton.topAnchor.constraint(equalTo: chatView.bottomAnchor, constant: 20),
+            searchButton.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
             searchButton.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/20),
             searchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
@@ -124,34 +142,20 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
     func addTableViewToSubview(){
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
-        tableView.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20),
-        tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-        tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            tableView.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         
     }
-    
-    //MARK: SetupChatView
-    func setupChatView(height: CGFloat){
-        for constraint in chatView.constraints {
-            chatView.removeConstraint(constraint)
-        }
-        NSLayoutConstraint.activate([
-                      self.chatView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
-                      self.chatView.leadingAnchor.constraint(equalTo: self.cview.leadingAnchor),
-                      self.chatView.trailingAnchor.constraint(equalTo: self.cview.trailingAnchor),
-                      self.chatView.heightAnchor.constraint(equalToConstant: height),
-                  ])
-    }
-    
     //MARK: Show Connection menu
     @objc func showConnectionMenu() {
-            let ac = UIAlertController(title: "Connection Menu", message: nil, preferredStyle: .actionSheet)
-            ac.addAction(UIAlertAction(title: "Host a session", style: .default, handler: hostSession))
-            ac.addAction(UIAlertAction(title: "Join a session", style: .default, handler: joinSession))
-            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-            present(ac, animated: true)
+        let ac = UIAlertController(title: "Connection Menu", message: nil, preferredStyle: .actionSheet)
+        ac.addAction(UIAlertAction(title: "Host a session", style: .default, handler: hostSession))
+        ac.addAction(UIAlertAction(title: "Join a session", style: .default, handler: joinSession))
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(ac, animated: true)
     }
     
     func hostSession(action: UIAlertAction) {
@@ -162,49 +166,37 @@ public class ViewController: UIViewController, UITableViewDataSource, UITableVie
         vcToManagerButton?.joinButtonPressed()
     }
     
-    @objc func keyboardNotification(notification: NSNotification) {
-        if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
-            let keyboardHeight = keyboardFrame.cgRectValue.height
-            
-            let isKeyboardShown = notification.name == UIResponder.keyboardWillShowNotification
-            let height = isKeyboardShown ? -keyboardHeight : -60
-            
-            self.setupChatView(height: UIScreen.main.bounds.height / 2 + height/4)
-            
-            UIView.animate(withDuration: 1) {
-                self.view.layoutIfNeeded()
-            }
-        }
-    }
-    @objc func openNewViewController(willPlay: Bool){
-        gameCoordinator = GameScreenCoordinator(presenter: self, manager: viewModel.dependencies.mpcManager, willPlay: willPlay)
-        gameCoordinator.start()
-    }
-    
-    func dismissTicTacToeVC(isHost: Bool){
-        gameCoordinator.dismissVC()
-        if !isHost {
-            DispatchQueue.main.async { [unowned self] in
-            let alert = UIAlertController(title: "Closed", message: "Your friend left the game", preferredStyle: .alert)
-                   alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action: UIAlertAction) in
-                       alert.dismiss(animated: true, completion: nil)
-                   }))
-                   self.present(alert, animated: true)
-            }
-        }
+    //MARK: Dismiss
+    func dismissTicTacToeVC(subject: PublishSubject<Bool>) -> Disposable{
+        subject
+            .observeOn(MainScheduler.instance)
+            .subscribeOn(viewModel.dependencies.scheduler)
+            .subscribe(onNext: {[unowned self]  bool in
+                self.viewModel.input.gameScreenControlSubject.onNext((false, self, self.viewModel.dependencies.mpcManager, true, false))
+                
+                DispatchQueue.main.async { [unowned self] in
+                    let alert = UIAlertController(title: "Closed", message: "Your friend left the game", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action: UIAlertAction) in
+                        alert.dismiss(animated: true, completion: nil)
+                    }))
+                    self.present(alert, animated: true)
+                }
+            })
+        
     }
     
 }
 
-extension ViewController: PeerHandle {
+extension MainScreenViewController: PeerHandle {
+    
     public func didDisconnect(isHost: Bool) {
-        dismissTicTacToeVC(isHost: isHost)
+        viewModel.input.shouldShowClosingSubject.onNext(isHost)
         viewModel.isConnected = false
     }
     
-    public func openGame(willPlay: Bool) {
+    public func openGame(willPlay: Bool, isHost: Bool) {
         self.viewModel.isConnected = true
-        self.openNewViewController(willPlay: willPlay)
+        viewModel.input.gameScreenControlSubject.onNext((true, self, viewModel.dependencies.mpcManager, willPlay, isHost))
     }
     
     public func connectionSucceded() {
@@ -212,7 +204,6 @@ extension ViewController: PeerHandle {
             self.viewModel.peersList.removeAll()
             self.tableView.reloadData()
             self.tableView.removeFromSuperview()
-            self.setupChatView(height: UIScreen.main.bounds.height/4)
             self.vcToManagerButton?.didConnect()
         }
         
@@ -223,12 +214,11 @@ extension ViewController: PeerHandle {
         self.viewModel.peersList.append(name)
         tableView.reloadData()
         self.addTableViewToSubview()
-        self.setupChatView(height: UIScreen.main.bounds.height/4)
         UIView.animate(withDuration: 1,
                        delay: 0,
                        options: [.curveEaseIn, .transitionCurlUp],
                        animations: {
-            self.view.layoutIfNeeded()
+                        self.view.layoutIfNeeded()
         }) { (Bool) in
         }
         

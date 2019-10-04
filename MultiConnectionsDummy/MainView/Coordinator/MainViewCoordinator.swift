@@ -9,18 +9,40 @@
 import Foundation
 import Shared
 import UIKit
+import RxSwift
+import GameModule
 
-class MainViewCoordinator: Coordinator {
-    var childCoordinators: [Coordinator] = []
+public class MainViewCoordinator: Coordinator {
+    public var childCoordinators: [Coordinator] = []
+    var viewController: MainScreenViewController!
     let window: UIWindow
     
     init(window: UIWindow) {
         self.window = window
     }
-    func start() {
-        window.rootViewController = ViewController()
+    public func start() {
+        viewController = MainScreenViewController()
+        window.rootViewController = viewController
         window.makeKeyAndVisible()
     }
     
+    deinit {
+        print("deinit")
+    }
+    
+    
+}
+
+extension MainViewCoordinator: GameScreenControlDelegate {
+    func openGame(presenter: MainScreenViewController, manager: MPCManager, willPlay: Bool) {
+        let gameCoordinator = GameScreenCoordinator(presenter: presenter, manager: manager, willPlay: willPlay, isHost: true)
+        gameCoordinator.store(coordinator: gameCoordinator)
+        gameCoordinator.start()
+    }
+    
+    func closeGame() {
+        viewController.dismiss(animated: true) {
+        }
+    }
     
 }

@@ -11,7 +11,7 @@ import UIKit
 
 class CustomTableViewCell: UITableViewCell {
     
-    let letterLabel: UILabel = {
+    let hostNumber: UILabel = {
         let view = UILabel()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor(red: 182/255, green: 222/255, blue: 238/255, alpha: 1)
@@ -22,8 +22,7 @@ class CustomTableViewCell: UITableViewCell {
         view.numberOfLines = 1
         return view
     }()
-    #warning("host name")
-    let locationLabel: UILabel = {
+    let hostNameLabel: UILabel = {
         let view = UILabel()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.font = UIFont.boldSystemFont(ofSize: 15)
@@ -42,22 +41,22 @@ class CustomTableViewCell: UITableViewCell {
     }
     
     func setupConstraints(){
-        contentView.addSubview(letterLabel)
-        contentView.addSubview(locationLabel)
+        contentView.addSubview(hostNumber)
+        contentView.addSubview(hostNameLabel)
         
         NSLayoutConstraint.activate([
-            letterLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            letterLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            letterLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-            letterLabel.widthAnchor.constraint(equalToConstant: 49),
+            hostNumber.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
+            hostNumber.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
+            hostNumber.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+            hostNumber.widthAnchor.constraint(equalToConstant: 49),
             
-            locationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            locationLabel.leadingAnchor.constraint(equalTo: letterLabel.trailingAnchor, constant: 5),
-            locationLabel.centerYAnchor.constraint(equalTo: letterLabel.centerYAnchor)
+            hostNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            hostNameLabel.leadingAnchor.constraint(equalTo: hostNumber.trailingAnchor, constant: 5),
+            hostNameLabel.centerYAnchor.constraint(equalTo: hostNumber.centerYAnchor)
         ])
     }
     public func setupCell(letter: String, location: String){
-        self.letterLabel.text = letter
-        self.locationLabel.text = location
+        self.hostNumber.text = letter
+        self.hostNameLabel.text = location
     }
 }
