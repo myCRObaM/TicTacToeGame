@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,7 +15,7 @@
 		F05B74772344A15000DADACE /* Shared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F05B74732344A15000DADACE /* Shared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F05B74792344A1A200DADACE /* Pods_MultiConnectionsDummy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F05B74782344A1A200DADACE /* Pods_MultiConnectionsDummy.framework */; };
 		F09C4C7E234337A0009FB2F1 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09C4C7D234337A0009FB2F1 /* MainViewModel.swift */; };
-		F09C4C8023433A62009FB2F1 /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09C4C7F23433A62009FB2F1 /* TableViewCell.swift */; };
+		F09C4C8023433A62009FB2F1 /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09C4C7F23433A62009FB2F1 /* CustomTableViewCell.swift */; };
 		F09C4C8523434D8A009FB2F1 /* MainViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09C4C8423434D8A009FB2F1 /* MainViewCoordinator.swift */; };
 		F0C05E6C234226930090BCC4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C05E6B234226930090BCC4 /* AppDelegate.swift */; };
 		F0C05E6E234226930090BCC4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C05E6D234226930090BCC4 /* SceneDelegate.swift */; };
@@ -72,7 +72,7 @@
 		F05B74732344A15000DADACE /* Shared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Shared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F05B74782344A1A200DADACE /* Pods_MultiConnectionsDummy.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_MultiConnectionsDummy.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F09C4C7D234337A0009FB2F1 /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
-		F09C4C7F23433A62009FB2F1 /* TableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
+		F09C4C7F23433A62009FB2F1 /* CustomTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
 		F09C4C8423434D8A009FB2F1 /* MainViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewCoordinator.swift; sourceTree = "<group>"; };
 		F0C05E68234226930090BCC4 /* MultiConnectionsDummy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MultiConnectionsDummy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0C05E6B234226930090BCC4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -148,7 +148,7 @@
 		F08DE8D023446A810022EB1D /* TableViewCell */ = {
 			isa = PBXGroup;
 			children = (
-				F09C4C7F23433A62009FB2F1 /* TableViewCell.swift */,
+				F09C4C7F23433A62009FB2F1 /* CustomTableViewCell.swift */,
 			);
 			path = TableViewCell;
 			sourceTree = "<group>";
@@ -162,7 +162,7 @@
 			path = Delegates;
 			sourceTree = "<group>";
 		};
-		F09C4C7C23433688009FB2F1 /* mainView */ = {
+		F09C4C7C23433688009FB2F1 /* MainView */ = {
 			isa = PBXGroup;
 			children = (
 				F08DE8D023446A810022EB1D /* TableViewCell */,
@@ -170,7 +170,7 @@
 				F09C4C8623434D8C009FB2F1 /* Model */,
 				F09C4C8723434D94009FB2F1 /* Coordinator */,
 			);
-			path = mainView;
+			path = MainView;
 			sourceTree = "<group>";
 		};
 		F09C4C8323434D7C009FB2F1 /* UI */ = {
@@ -223,7 +223,7 @@
 			isa = PBXGroup;
 			children = (
 				F08DE8D123446A8E0022EB1D /* Delegates */,
-				F09C4C7C23433688009FB2F1 /* mainView */,
+				F09C4C7C23433688009FB2F1 /* MainView */,
 				F0C05E71234226930090BCC4 /* Main.storyboard */,
 				F0C05E74234226940090BCC4 /* Assets.xcassets */,
 				F0C05E76234226940090BCC4 /* LaunchScreen.storyboard */,
@@ -468,7 +468,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F09C4C8523434D8A009FB2F1 /* MainViewCoordinator.swift in Sources */,
-				F09C4C8023433A62009FB2F1 /* TableViewCell.swift in Sources */,
+				F09C4C8023433A62009FB2F1 /* CustomTableViewCell.swift in Sources */,
 				F0C05E70234226930090BCC4 /* ViewController.swift in Sources */,
 				F0C05E6C234226930090BCC4 /* AppDelegate.swift in Sources */,
 				F0C05E6E234226930090BCC4 /* SceneDelegate.swift in Sources */,

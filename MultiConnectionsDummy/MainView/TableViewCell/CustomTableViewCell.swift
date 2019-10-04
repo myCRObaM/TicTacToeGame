@@ -22,7 +22,7 @@ class CustomTableViewCell: UITableViewCell {
         view.numberOfLines = 1
         return view
     }()
-    
+    #warning("host name")
     let locationLabel: UILabel = {
         let view = UILabel()
         view.translatesAutoresizingMaskIntoConstraints = false
