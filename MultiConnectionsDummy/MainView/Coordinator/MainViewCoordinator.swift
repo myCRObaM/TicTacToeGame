@@ -12,22 +12,24 @@ import UIKit
 import RxSwift
 import GameModule
 
+
 public class MainViewCoordinator: Coordinator {
     public var childCoordinators: [Coordinator] = []
     var viewController: MainScreenViewController!
-    let window: UIWindow
+    let presenter: UINavigationController
     
-    init(window: UIWindow) {
-        self.window = window
+    public init(navController: UINavigationController) {
+        let manager = MPCManager()
+        self.presenter = navController
+        let viewModel = MainScreenViewModel(dependencies: MainScreenViewModel.Dependencies(mpcManager: manager, scheduler: ConcurrentDispatchQueueScheduler(qos: .background)))
+        viewModel.vcToManagerButton = manager
+        viewController = MainScreenViewController(viewModel: viewModel)
+        manager.peerControlDelegate = viewController
     }
+    
     public func start() {
-        viewController = MainScreenViewController()
-        window.rootViewController = viewController
-        window.makeKeyAndVisible()
-    }
-    
-    deinit {
-        print("deinit")
+        presenter.pushViewController(viewController, animated: true)
+        print("added viewController")
     }
     
     

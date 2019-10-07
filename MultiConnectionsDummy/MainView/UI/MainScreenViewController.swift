@@ -35,7 +35,6 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
     //MARK: VARIABLES
     var serviceType = "ioscreator-chat"
     var viewModel: MainScreenViewModel!
-    weak var vcToManagerButton: VcToManagerDelegate?
     let disposeBag = DisposeBag()
     
     var messageToSend: String!
@@ -71,23 +70,26 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
         return view
     }()
     
+    init(viewModel: MainScreenViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+   required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        fatalError("error")
+    }
+    
+    
     //MARK: viewDidLoad
     override public func viewDidLoad() {
         super.viewDidLoad()
-        
-        
         setupViewModel()
         setupView()
         setupMultipeer()
     }
     func setupViewModel(){
-        let mPCManager = MPCManager()
-        mPCManager.peerControlDelegate = self
-        self.vcToManagerButton = mPCManager
-        viewModel = MainScreenViewModel(dependencies: MainScreenViewModel.Dependencies(mpcManager: mPCManager, scheduler: ConcurrentDispatchQueueScheduler(qos: .background)))
-        viewModel.vcToManagerButton = vcToManagerButton
-        
-        let input = MainScreenViewModel.Input(didSelectCellSubject: PublishSubject<Int>(), shouldShowClosingSubject: PublishSubject<Bool>(), gameScreenControlSubject: PublishSubject<(Bool, MainScreenViewController, MPCManager, Bool, Bool)>())
+        let input = MainScreenViewModel.Input(didSelectCellSubject: PublishSubject<Int>(), shouldShowClosingSubject: PublishSubject<Bool>(), gameScreenControlSubject: PublishSubject<(Bool, MainScreenViewController, MPCManager, Bool, Bool)>(), addRemovePeersSubject: PublishSubject<(String, Bool)>())
         let output = viewModel.transfrom(input: input)
         
         for disposable in output.disposables {
@@ -159,11 +161,11 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
     }
     
     func hostSession(action: UIAlertAction) {
-        vcToManagerButton?.hostButtonPressed()
+        viewModel.vcToManagerButton?.hostButtonPressed()
     }
     
     func joinSession(action: UIAlertAction) {
-        vcToManagerButton?.joinButtonPressed()
+        viewModel.vcToManagerButton?.joinButtonPressed()
     }
     
     //MARK: Dismiss
@@ -185,6 +187,29 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
         
     }
     
+    func tableViewAfterPeerUpdate(subject: PublishSubject<Bool>) -> Disposable{
+        subject
+        .observeOn(MainScheduler.instance)
+        .subscribeOn(viewModel.dependencies.scheduler)
+            .subscribe(onNext: {[unowned self]  bool in
+                switch bool {
+                case true:
+                    self.tableView.removeFromSuperview()
+                case false:
+                    self.addTableViewToSubview()
+                    UIView.animate(withDuration: 1,
+                                          delay: 0,
+                                          options: [.curveEaseIn, .transitionCurlUp],
+                                          animations: {
+                                           self.view.layoutIfNeeded()
+                           }) { (Bool) in
+                           }
+                }
+                self.tableView.reloadData()
+                
+            })
+    }
+    
 }
 
 extension MainScreenViewController: PeerHandle {
@@ -202,25 +227,12 @@ extension MainScreenViewController: PeerHandle {
     public func connectionSucceded() {
         DispatchQueue.main.async { [unowned self] in
             self.viewModel.peersList.removeAll()
-            self.tableView.reloadData()
-            self.tableView.removeFromSuperview()
-            self.vcToManagerButton?.didConnect()
+            self.viewModel.vcToManagerButton?.didConnect()
         }
         
     }
     
     public func addPeer(name: MCPeerID) {
-        
-        self.viewModel.peersList.append(name)
-        tableView.reloadData()
-        self.addTableViewToSubview()
-        UIView.animate(withDuration: 1,
-                       delay: 0,
-                       options: [.curveEaseIn, .transitionCurlUp],
-                       animations: {
-                        self.view.layoutIfNeeded()
-        }) { (Bool) in
-        }
         
     }
     

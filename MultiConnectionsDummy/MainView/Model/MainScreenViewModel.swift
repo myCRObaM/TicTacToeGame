@@ -17,6 +17,7 @@ public class MainScreenViewModel {
         var didSelectCellSubject: PublishSubject<Int>
         var shouldShowClosingSubject: PublishSubject<Bool>
         var gameScreenControlSubject: PublishSubject<(Bool, MainScreenViewController, MPCManager, Bool, Bool)>
+        var addRemovePeersSubject: PublishSubject<(String, Bool)>
     }
     
     struct Output {
@@ -37,6 +38,7 @@ public class MainScreenViewModel {
         disposables.append(selectedCell(subject: input.didSelectCellSubject))
         disposables.append(shouldShowClosingPopUp(subject: input.shouldShowClosingSubject))
         disposables.append(controlGameScreen(subject: input.gameScreenControlSubject))
+        disposables.append(controlPeers(subject: PublishSubject<(MCPeerID, Bool)>()))
         
         self.output = Output(showClosingSubject: PublishSubject<Bool>(), disposables: disposables)
         return output
@@ -88,6 +90,21 @@ public class MainScreenViewModel {
                     vc.dismiss(animated: true) {
                     }
                 }
+            })
+    }
+    
+    func controlPeers(subject: PublishSubject<(MCPeerID, Bool)>) -> Disposable {
+        return subject
+        .observeOn(MainScheduler.instance)
+        .subscribeOn(dependencies.scheduler)
+            .subscribe(onNext: { [unowned self]  (name, bool) in
+                switch bool {
+                case true:
+                    self.peersList.append(name)
+                case false:
+                    self.peersList.removeAll()
+                }
+               
             })
     }
     
