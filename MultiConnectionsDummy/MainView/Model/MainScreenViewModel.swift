@@ -60,7 +60,7 @@ public class MainScreenViewModel {
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
     }
-    //MARK: cell
+    //MARK: cell selected
     func selectedCell(subject: PublishSubject<Int>) -> Disposable{
         return subject
             .observeOn(MainScheduler.instance)
