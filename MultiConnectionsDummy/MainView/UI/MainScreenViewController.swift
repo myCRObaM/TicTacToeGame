@@ -89,7 +89,7 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
         setupMultipeer()
     }
     func setupViewModel(){
-        let input = MainScreenViewModel.Input(didSelectCellSubject: PublishSubject<Int>(), shouldShowClosingSubject: PublishSubject<Bool>(), gameScreenControlSubject: PublishSubject<(Bool, MainScreenViewController, MPCManager, Bool, Bool)>(), addRemovePeersSubject: PublishSubject<(String, Bool)>())
+        let input = MainScreenViewModel.Input(didSelectCellSubject: PublishSubject(), shouldShowClosingSubject: PublishSubject(), gameScreenControlSubject: PublishSubject(), addRemovePeersSubject: PublishSubject(), browserOpeningSubject: PublishSubject())
         let output = viewModel.transfrom(input: input)
         
         for disposable in output.disposables {
@@ -97,6 +97,7 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
         }
         
         self.dismissTicTacToeVC(subject: output.showClosingSubject).disposed(by: disposeBag)
+        self.tableViewAfterPeerUpdate(subject: output.tableViewControlSubject).disposed(by: disposeBag)
     }
     //MARK: setupView
     func setupView(){
@@ -161,11 +162,11 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
     }
     
     func hostSession(action: UIAlertAction) {
-        viewModel.vcToManagerButton?.hostButtonPressed()
+        viewModel.input.browserOpeningSubject.onNext(false)
     }
     
     func joinSession(action: UIAlertAction) {
-        viewModel.vcToManagerButton?.joinButtonPressed()
+        viewModel.input.browserOpeningSubject.onNext(true)
     }
     
     //MARK: Dismiss
@@ -174,7 +175,7 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
             .observeOn(MainScheduler.instance)
             .subscribeOn(viewModel.dependencies.scheduler)
             .subscribe(onNext: {[unowned self]  bool in
-                self.viewModel.input.gameScreenControlSubject.onNext((false, self, self.viewModel.dependencies.mpcManager, true, false))
+                self.viewModel.input.gameScreenControlSubject.onNext((false, self, self.viewModel.dependencies.mpcManager, true, false, false))
                 
                 DispatchQueue.main.async { [unowned self] in
                     let alert = UIAlertController(title: "Closed", message: "Your friend left the game", preferredStyle: .alert)
@@ -192,6 +193,7 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
         .observeOn(MainScheduler.instance)
         .subscribeOn(viewModel.dependencies.scheduler)
             .subscribe(onNext: {[unowned self]  bool in
+                self.tableView.reloadData()
                 switch bool {
                 case true:
                     self.tableView.removeFromSuperview()
@@ -205,8 +207,6 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
                            }) { (Bool) in
                            }
                 }
-                self.tableView.reloadData()
-                
             })
     }
     
@@ -215,25 +215,19 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
 extension MainScreenViewController: PeerHandle {
     
     public func didDisconnect(isHost: Bool) {
-        viewModel.input.shouldShowClosingSubject.onNext(isHost)
-        viewModel.isConnected = false
+        viewModel.input.shouldShowClosingSubject.onNext((isHost, false))
     }
     
     public func openGame(willPlay: Bool, isHost: Bool) {
-        self.viewModel.isConnected = true
-        viewModel.input.gameScreenControlSubject.onNext((true, self, viewModel.dependencies.mpcManager, willPlay, isHost))
+        viewModel.input.gameScreenControlSubject.onNext((true, self, viewModel.dependencies.mpcManager, willPlay, isHost, true))
     }
     
     public func connectionSucceded() {
-        DispatchQueue.main.async { [unowned self] in
-            self.viewModel.peersList.removeAll()
-            self.viewModel.vcToManagerButton?.didConnect()
-        }
-        
+        viewModel.input.addRemovePeersSubject.onNext((MCPeerID(displayName: "notUsed"), false))
     }
     
     public func addPeer(name: MCPeerID) {
-        
+        viewModel.input.addRemovePeersSubject.onNext((name, true))
     }
     
     public func removePeer(name: MCPeerID) {
