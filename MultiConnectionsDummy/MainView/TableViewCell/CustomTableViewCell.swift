@@ -44,16 +44,20 @@ class CustomTableViewCell: UITableViewCell {
         contentView.addSubview(hostNumber)
         contentView.addSubview(hostNameLabel)
         
-        NSLayoutConstraint.activate([
-            hostNumber.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            hostNumber.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            hostNumber.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-            hostNumber.widthAnchor.constraint(equalToConstant: 49),
-            
-            hostNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            hostNameLabel.leadingAnchor.constraint(equalTo: hostNumber.trailingAnchor, constant: 5),
-            hostNameLabel.centerYAnchor.constraint(equalTo: hostNumber.centerYAnchor)
-        ])
+        let contentsnp = contentView.snp
+        
+        hostNumber.snp.makeConstraints { (make) in
+            make.leading.equalTo(contentsnp.leading).offset(5)
+            make.top.equalTo(contentsnp.top).offset(5)
+            make.bottom.equalTo(contentsnp.bottom).offset(-5)
+            make.width.equalTo(49)
+        }
+        
+        hostNameLabel.snp.makeConstraints { (make) in
+            make.trailing.equalTo(contentsnp.trailing)
+            make.leading.equalTo(hostNumber.snp.trailing).offset(5)
+            make.centerY.equalTo(hostNumber.snp.centerY)
+        }
     }
     public func setupCell(letter: String, location: String){
         self.hostNumber.text = letter

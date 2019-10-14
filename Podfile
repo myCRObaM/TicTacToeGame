@@ -8,6 +8,7 @@ workspace 'MultiConnectionsDummy'
 def pods
   pod 'RxSwift'
   pod 'RxCocoa'
+  pod 'SnapKit'
 end
 
 def testing_pods

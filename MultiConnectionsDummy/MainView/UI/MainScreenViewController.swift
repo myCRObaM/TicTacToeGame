@@ -121,36 +121,40 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
     
     //MARK: Setup Constraints
     func setupConstraints(){
-        NSLayoutConstraint.activate([
-            customView.topAnchor.constraint(equalTo: view.topAnchor),
-            customView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            customView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            customView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            
-            imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            imageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/3),
-            
-            
-            searchButton.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
-            searchButton.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height/20),
-            searchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-        ])
+        let viewsnp = view.snp
+        customView.snp.makeConstraints { (make) in
+            make.top.equalTo(viewsnp.top)
+            make.bottom.equalTo(viewsnp.bottom)
+            make.leading.equalTo(viewsnp.leading)
+            make.trailing.equalTo(viewsnp.trailing)
+        }
         
+        imageView.snp.makeConstraints { (make) in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.leading.equalTo(viewsnp.leading)
+            make.trailing.equalTo(viewsnp.trailing)
+            make.height.equalTo(UIScreen.main.bounds.height/3)
+        }
+        
+        searchButton.snp.makeConstraints { (make) in
+            make.top.equalTo(imageView.snp.bottom).offset(20)
+            make.height.equalTo(UIScreen.main.bounds.height/20)
+            make.centerX.equalTo(viewsnp.centerX)
+        }
     }
     
     //MARK: add TableView to subview
     func addTableViewToSubview(){
         view.addSubview(tableView)
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
         
+        let snpview = view.snp
+        
+        tableView.snp.makeConstraints { (make) in
+            make.top.equalTo(searchButton.snp.bottom).offset(20)
+            make.bottom.equalTo(snpview.bottom)
+            make.leading.equalTo(snpview.leading)
+            make.trailing.equalTo(snpview.trailing)
+        }
     }
     //MARK: Show Connection menu
     @objc func showConnectionMenu() {
