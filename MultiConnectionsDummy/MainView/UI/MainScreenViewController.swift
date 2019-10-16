@@ -121,25 +121,20 @@ public class MainScreenViewController: UIViewController, UITableViewDataSource, 
     
     //MARK: Setup Constraints
     func setupConstraints(){
-        let viewsnp = view.snp
         customView.snp.makeConstraints { (make) in
-            make.top.equalTo(viewsnp.top)
-            make.bottom.equalTo(viewsnp.bottom)
-            make.leading.equalTo(viewsnp.leading)
-            make.trailing.equalTo(viewsnp.trailing)
+            make.top.bottom.leading.trailing.equalTo(view)
         }
         
         imageView.snp.makeConstraints { (make) in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.leading.equalTo(viewsnp.leading)
-            make.trailing.equalTo(viewsnp.trailing)
+            make.leading.trailing.equalTo(view)
             make.height.equalTo(UIScreen.main.bounds.height/3)
         }
         
         searchButton.snp.makeConstraints { (make) in
             make.top.equalTo(imageView.snp.bottom).offset(20)
             make.height.equalTo(UIScreen.main.bounds.height/20)
-            make.centerX.equalTo(viewsnp.centerX)
+            make.centerX.equalTo(view)
         }
     }
     

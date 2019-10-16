@@ -44,19 +44,17 @@ class CustomTableViewCell: UITableViewCell {
         contentView.addSubview(hostNumber)
         contentView.addSubview(hostNameLabel)
         
-        let contentsnp = contentView.snp
-        
         hostNumber.snp.makeConstraints { (make) in
-            make.leading.equalTo(contentsnp.leading).offset(5)
-            make.top.equalTo(contentsnp.top).offset(5)
-            make.bottom.equalTo(contentsnp.bottom).offset(-5)
+            make.leading.equalTo(contentView).offset(5)
+            make.top.equalTo(contentView).offset(5)
+            make.bottom.equalTo(contentView).offset(-5)
             make.width.equalTo(49)
         }
         
         hostNameLabel.snp.makeConstraints { (make) in
-            make.trailing.equalTo(contentsnp.trailing)
+            make.trailing.equalTo(contentView)
             make.leading.equalTo(hostNumber.snp.trailing).offset(5)
-            make.centerY.equalTo(hostNumber.snp.centerY)
+            make.centerY.equalTo(hostNumber)
         }
     }
     public func setupCell(letter: String, location: String){
